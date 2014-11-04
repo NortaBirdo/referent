@@ -1,0 +1,269 @@
+object EventEditForm: TEventEditForm
+  Left = 0
+  Top = 0
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1085#1080#1077' '#1089#1086#1073#1099#1090#1080#1103
+  ClientHeight = 636
+  ClientWidth = 690
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poScreenCenter
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Label1: TLabel
+    Left = 8
+    Top = 16
+    Width = 171
+    Height = 13
+    Caption = #1044#1072#1090#1072' '#1076#1086#1073#1072#1074#1083#1077#1085#1080#1103' '#1089#1086#1073#1099#1090#1080#1103' '#1074' '#1073#1072#1079#1091
+  end
+  object Label2: TLabel
+    Left = 360
+    Top = 16
+    Width = 111
+    Height = 13
+    Caption = #1044#1072#1090#1072' '#1085#1072#1095#1072#1083#1072' '#1089#1086#1073#1099#1090#1080#1103
+  end
+  object Label3: TLabel
+    Left = 360
+    Top = 43
+    Width = 129
+    Height = 13
+    Caption = #1044#1072#1090#1072' '#1086#1082#1086#1085#1095#1072#1085#1080#1103' '#1089#1086#1073#1099#1090#1080#1103
+  end
+  object Label4: TLabel
+    Left = 8
+    Top = 80
+    Width = 117
+    Height = 13
+    Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1084#1077#1088#1086#1087#1088#1080#1103#1090#1080#1103
+  end
+  object Label5: TLabel
+    Left = 8
+    Top = 134
+    Width = 66
+    Height = 13
+    Caption = #1054#1088#1075#1072#1085#1080#1079#1072#1090#1086#1088
+  end
+  object Label6: TLabel
+    Left = 8
+    Top = 161
+    Width = 49
+    Height = 13
+    Caption = #1054#1087#1080#1089#1072#1085#1080#1077
+  end
+  object Label7: TLabel
+    Left = 8
+    Top = 390
+    Width = 95
+    Height = 13
+    Caption = #1052#1077#1089#1090#1086' '#1087#1088#1086#1074#1077#1076#1077#1085#1080#1103
+  end
+  object Label8: TLabel
+    Left = 8
+    Top = 456
+    Width = 70
+    Height = 13
+    Caption = #1056#1072#1073#1086#1095#1080#1081' '#1103#1079#1099#1082
+  end
+  object Label9: TLabel
+    Left = 8
+    Top = 486
+    Width = 51
+    Height = 13
+    Caption = #1050#1086#1085#1090#1072#1082#1090#1099
+  end
+  object Label10: TLabel
+    Left = 8
+    Top = 513
+    Width = 64
+    Height = 13
+    Caption = #1056#1077#1075#1080#1089#1090#1088#1072#1094#1080#1103
+  end
+  object Label11: TLabel
+    Left = 8
+    Top = 540
+    Width = 61
+    Height = 13
+    Caption = #1055#1091#1073#1083#1080#1082#1072#1094#1080#1103
+  end
+  object Label12: TLabel
+    Left = 8
+    Top = 567
+    Width = 79
+    Height = 13
+    Caption = #1057#1089#1099#1083#1082#1072' '#1085#1072' '#1089#1072#1081#1090
+  end
+  object Label13: TLabel
+    Left = 8
+    Top = 112
+    Width = 87
+    Height = 13
+    Caption = #1058#1080#1087' '#1084#1077#1088#1086#1087#1088#1080#1103#1090#1080#1103
+  end
+  object DBCheckBox1: TDBCheckBox
+    Left = 8
+    Top = 42
+    Width = 177
+    Height = 17
+    Caption = #1042#1082#1083#1102#1095#1080#1090#1100' '#1089#1086#1073#1099#1090#1080#1077' '#1074' '#1088#1072#1089#1089#1099#1083#1082#1091
+    DataField = 'status'
+    DataSource = DBModel.DataSourceActualList
+    TabOrder = 0
+  end
+  object AddDateEdit: TDBEdit
+    Left = 208
+    Top = 13
+    Width = 121
+    Height = 21
+    DataField = 'date_add'
+    DataSource = DBModel.DataSourceActualList
+    TabOrder = 1
+  end
+  object DBEdit2: TDBEdit
+    Left = 560
+    Top = 40
+    Width = 121
+    Height = 21
+    DataField = 'date_event_end'
+    DataSource = DBModel.DataSourceActualList
+    TabOrder = 2
+  end
+  object DBEdit3: TDBEdit
+    Left = 560
+    Top = 13
+    Width = 121
+    Height = 21
+    DataField = 'date_event_start'
+    DataSource = DBModel.DataSourceActualList
+    TabOrder = 3
+  end
+  object DBEdit4: TDBEdit
+    Left = 208
+    Top = 77
+    Width = 473
+    Height = 21
+    DataField = 'caption'
+    DataSource = DBModel.DataSourceActualList
+    TabOrder = 4
+  end
+  object DBEdit6: TDBEdit
+    Left = 208
+    Top = 131
+    Width = 473
+    Height = 21
+    DataField = 'organizator'
+    DataSource = DBModel.DataSourceActualList
+    TabOrder = 5
+  end
+  object DBEdit7: TDBEdit
+    Left = 208
+    Top = 510
+    Width = 473
+    Height = 21
+    DataField = 'registration'
+    DataSource = DBModel.DataSourceActualList
+    TabOrder = 6
+  end
+  object DBEdit8: TDBEdit
+    Left = 208
+    Top = 483
+    Width = 473
+    Height = 21
+    DataField = 'contact'
+    DataSource = DBModel.DataSourceActualList
+    TabOrder = 7
+  end
+  object DBEdit9: TDBEdit
+    Left = 208
+    Top = 453
+    Width = 473
+    Height = 21
+    DataField = 'lang'
+    DataSource = DBModel.DataSourceActualList
+    TabOrder = 8
+  end
+  object DBEdit11: TDBEdit
+    Left = 208
+    Top = 564
+    Width = 473
+    Height = 21
+    DataField = 'link_to_site'
+    DataSource = DBModel.DataSourceActualList
+    TabOrder = 9
+  end
+  object DBEdit12: TDBEdit
+    Left = 208
+    Top = 537
+    Width = 473
+    Height = 21
+    DataField = 'publication'
+    DataSource = DBModel.DataSourceActualList
+    TabOrder = 10
+  end
+  object DBRichEdit1: TDBRichEdit
+    Left = 208
+    Top = 158
+    Width = 473
+    Height = 221
+    DataField = 'description'
+    DataSource = DBModel.DataSourceActualList
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    TabOrder = 11
+  end
+  object DBRichEdit2: TDBRichEdit
+    Left = 208
+    Top = 385
+    Width = 473
+    Height = 62
+    DataField = 'local'
+    DataSource = DBModel.DataSourceActualList
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    TabOrder = 12
+  end
+  object OkBtn: TButton
+    Left = 8
+    Top = 600
+    Width = 117
+    Height = 25
+    Caption = 'OK'
+    TabOrder = 13
+    OnClick = OkBtnClick
+  end
+  object CancelBtn: TButton
+    Left = 560
+    Top = 600
+    Width = 121
+    Height = 25
+    Caption = #1054#1090#1084#1077#1085#1072
+    TabOrder = 14
+    OnClick = CancelBtnClick
+  end
+  object DBComboBox1: TDBComboBox
+    Left = 208
+    Top = 104
+    Width = 473
+    Height = 21
+    DataField = 'type_event_id'
+    DataSource = DBModel.DataSourceActualList
+    Items.Strings = (
+      #1057#1077#1084#1080#1085#1072#1088
+      #1050#1086#1085#1092#1077#1088#1077#1085#1094#1080#1103
+      #1050#1088#1091#1075#1083#1099#1081' '#1089#1090#1086#1083)
+    TabOrder = 15
+  end
+end

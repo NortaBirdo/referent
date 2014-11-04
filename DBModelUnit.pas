@@ -15,15 +15,34 @@ type
     ADQuerySQL: TADQuery;
     ADPhysSQLiteDriverLink1: TADPhysSQLiteDriverLink;
     ADGUIxWaitCursor1: TADGUIxWaitCursor;
-    ADQueryArticle: TADQuery;
-    DataSourceArticle: TDataSource;
+    ADQueryHist: TADQuery;
+    DataSourceHist: TDataSource;
+    ADQueryActualList: TADQuery;
+    DataSourceActualList: TDataSource;
+    ADQueryActualListid: TADAutoIncField;
+    ADQueryActualListdate_event_start: TDateField;
+    ADQueryActualListdate_event_end: TDateField;
+    ADQueryActualListdate_add: TDateField;
+    ADQueryActualListcaption: TStringField;
+    ADQueryActualListdescription: TMemoField;
+    ADQueryActualListlocal: TMemoField;
+    ADQueryActualListcontact: TStringField;
+    ADQueryActualListregistration: TStringField;
+    ADQueryActualListlink_to_site: TStringField;
+    ADQueryActualListlang: TStringField;
+    ADQueryActualListpublication: TStringField;
+    ADQueryActualListorganizator: TStringField;
+    ADQueryActualListstatus: TBooleanField;
+    ADQueryActualListtype_event_id: TStringField;
     procedure DataModuleCreate(Sender: TObject);
   private
     { Private declarations }
 
   public
     { Public declarations }
-
+    procedure Refresh;
+    procedure Save;
+    function GetCaptionEvent: string;
   end;
 
 var
@@ -54,15 +73,32 @@ begin
     Connected := true;
   end;
 
-  ADQueryArticle.Active := true;
+  ADQueryActualList.Active := true;
+  ADQueryHist.Active := true;
 
   except
     ShowMessage('Не удалось подключиться к базе данных.');
     exit;
   end;
-
-
 end;
 
+
+function TDBModel.GetCaptionEvent: string;
+begin
+  result := ADQueryActualList.FieldByName('caption').AsString;
+end;
+
+procedure TDBModel.Refresh;
+begin
+  ADQueryActualList.Refresh;
+  ADQueryHist.Refresh;
+end;
+
+procedure TDBModel.Save;
+begin
+  if ADQueryActualList.Modified then
+    ADQueryActualList.post;
+
+end;
 
 end.

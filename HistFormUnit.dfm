@@ -1,59 +1,152 @@
-object MainForm: TMainForm
+object HistForm: THistForm
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
-  Caption = 'Referent'
-  ClientHeight = 650
-  ClientWidth = 1016
+  Caption = #1048#1089#1090#1086#1088#1080#1103' '#1089#1086#1073#1099#1090#1080#1081
+  ClientHeight = 526
+  ClientWidth = 1091
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  Menu = MainMenu1
   OldCreateOrder = False
   Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
+  object Label6: TLabel
     Left = 8
-    Top = 8
-    Width = 92
+    Top = 321
+    Width = 49
     Height = 13
-    Caption = #1041#1091#1076#1091#1097#1080#1077' '#1089#1086#1073#1099#1090#1080#1103
+    Caption = #1054#1087#1080#1089#1072#1085#1080#1077
   end
-  object DBCheckBox1: TDBCheckBox
-    Left = 664
-    Top = 8
-    Width = 97
-    Height = 17
-    Color = clHighlightText
-    DataField = 'status'
+  object Label7: TLabel
+    Left = 683
+    Top = 343
+    Width = 95
+    Height = 13
+    Caption = #1052#1077#1089#1090#1086' '#1087#1088#1086#1074#1077#1076#1077#1085#1080#1103
+  end
+  object Label9: TLabel
+    Left = 688
+    Top = 411
+    Width = 51
+    Height = 13
+    Caption = #1050#1086#1085#1090#1072#1082#1090#1099
+  end
+  object Label10: TLabel
+    Left = 688
+    Top = 438
+    Width = 64
+    Height = 13
+    Caption = #1056#1077#1075#1080#1089#1090#1088#1072#1094#1080#1103
+  end
+  object Label11: TLabel
+    Left = 688
+    Top = 465
+    Width = 61
+    Height = 13
+    Caption = #1055#1091#1073#1083#1080#1082#1072#1094#1080#1103
+  end
+  object Label12: TLabel
+    Left = 688
+    Top = 492
+    Width = 79
+    Height = 13
+    Caption = #1057#1089#1099#1083#1082#1072' '#1085#1072' '#1089#1072#1081#1090
+  end
+  object DBEdit7: TDBEdit
+    Left = 784
+    Top = 435
+    Width = 297
+    Height = 21
+    Color = clScrollBar
+    DataField = 'registration'
     DataSource = DBModel.DataSourceActualList
-    ParentColor = False
+    ReadOnly = True
     TabOrder = 0
-    ValueChecked = ''
-    ValueUnchecked = ''
-    Visible = False
   end
-  object DBGrid1: TDBGrid
-    Left = 8
-    Top = 31
-    Width = 1001
-    Height = 610
+  object DBEdit8: TDBEdit
+    Left = 784
+    Top = 408
+    Width = 297
+    Height = 21
+    Color = clScrollBar
+    DataField = 'contact'
     DataSource = DBModel.DataSourceActualList
     ReadOnly = True
     TabOrder = 1
+  end
+  object DBEdit11: TDBEdit
+    Left = 784
+    Top = 489
+    Width = 297
+    Height = 21
+    Color = clScrollBar
+    DataField = 'link_to_site'
+    DataSource = DBModel.DataSourceActualList
+    ReadOnly = True
+    TabOrder = 2
+  end
+  object DBEdit12: TDBEdit
+    Left = 784
+    Top = 462
+    Width = 297
+    Height = 21
+    Color = clScrollBar
+    DataField = 'publication'
+    DataSource = DBModel.DataSourceActualList
+    ReadOnly = True
+    TabOrder = 3
+  end
+  object DBRichEdit1: TDBRichEdit
+    Left = 8
+    Top = 340
+    Width = 657
+    Height = 170
+    Color = clScrollBar
+    DataField = 'description'
+    DataSource = DBModel.DataSourceActualList
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ReadOnly = True
+    TabOrder = 4
+  end
+  object DBRichEdit2: TDBRichEdit
+    Left = 784
+    Top = 340
+    Width = 297
+    Height = 62
+    Color = clScrollBar
+    DataField = 'local'
+    DataSource = DBModel.DataSourceActualList
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ReadOnly = True
+    TabOrder = 5
+  end
+  object DBGrid1: TDBGrid
+    Left = 8
+    Top = 8
+    Width = 1073
+    Height = 300
+    DataSource = DBModel.DataSourceHist
+    ReadOnly = True
+    TabOrder = 6
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
     TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
-    OnCellClick = DBGrid1CellClick
-    OnDrawColumnCell = DBGrid1DrawColumnCell
-    OnDblClick = DBGrid1DblClick
     Columns = <
       item
         Expanded = False
@@ -73,7 +166,6 @@ object MainForm: TMainForm
         FieldName = 'date_event_end'
         Title.Alignment = taCenter
         Title.Caption = #1044#1072#1090#1072' '#1086#1082#1086#1085#1095#1072#1085#1080#1103
-        Width = 64
         Visible = True
       end
       item
@@ -81,7 +173,6 @@ object MainForm: TMainForm
         FieldName = 'date_add'
         Title.Alignment = taCenter
         Title.Caption = #1044#1072#1090#1072' '#1076#1086#1073#1072#1074#1083#1077#1085#1080#1103
-        Width = 64
         Visible = True
       end
       item
@@ -89,7 +180,7 @@ object MainForm: TMainForm
         FieldName = 'caption'
         Title.Alignment = taCenter
         Title.Caption = #1053#1072#1079#1074#1072#1085#1080#1077
-        Width = 236
+        Width = 271
         Visible = True
       end
       item
@@ -126,7 +217,9 @@ object MainForm: TMainForm
         Expanded = False
         FieldName = 'lang'
         Title.Alignment = taCenter
-        Visible = False
+        Title.Caption = #1071#1079#1099#1082#1080
+        Width = 165
+        Visible = True
       end
       item
         Expanded = False
@@ -139,7 +232,7 @@ object MainForm: TMainForm
         FieldName = 'organizator'
         Title.Alignment = taCenter
         Title.Caption = #1054#1088#1075#1072#1085#1080#1079#1072#1090#1086#1088
-        Width = 184
+        Width = 207
         Visible = True
       end
       item
@@ -155,57 +248,8 @@ object MainForm: TMainForm
         FieldName = 'status'
         Title.Alignment = taCenter
         Title.Caption = #1057#1090#1072#1090#1091#1089
-        Width = 152
-        Visible = True
+        Width = -1
+        Visible = False
       end>
-  end
-  object MainMenu1: TMainMenu
-    Left = 808
-    Top = 8
-    object N1: TMenuItem
-      Caption = #1060#1072#1081#1083
-      object N2: TMenuItem
-        Caption = #1048#1084#1087#1086#1088#1090' '#1089#1086#1073#1099#1090#1080#1081
-      end
-      object N3: TMenuItem
-        Caption = '-'
-      end
-      object N4: TMenuItem
-        Caption = #1042#1099#1093#1086#1076
-        OnClick = N4Click
-      end
-    end
-    object N5: TMenuItem
-      Caption = #1056#1077#1076#1072#1082#1090#1086#1088
-      object N6: TMenuItem
-        Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1089#1086#1073#1099#1090#1080#1077
-        OnClick = N6Click
-      end
-      object N7: TMenuItem
-        Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100' '#1089#1086#1073#1099#1090#1080#1077
-        OnClick = N7Click
-      end
-      object N8: TMenuItem
-        Caption = #1059#1076#1072#1083#1080#1090#1100' '#1089#1086#1073#1099#1090#1080#1077
-        OnClick = N8Click
-      end
-    end
-    object N13: TMenuItem
-      Caption = #1048#1089#1090#1086#1088#1080#1103' '#1089#1086#1073#1099#1090#1080#1081
-      OnClick = N13Click
-    end
-    object N9: TMenuItem
-      Caption = #1043#1077#1085#1077#1088#1080#1088#1086#1074#1072#1090#1100' '#1088#1072#1089#1089#1099#1083#1082#1091
-      OnClick = N9Click
-    end
-    object N10: TMenuItem
-      Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077
-      OnClick = N10Click
-    end
-  end
-  object SaveDialog1: TSaveDialog
-    Filter = '*.docx|MS Word 07-2010|*.doc|MS Word 97-2003'
-    Left = 512
-    Top = 8
   end
 end

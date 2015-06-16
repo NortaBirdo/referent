@@ -1,0 +1,601 @@
+unit DBModelUnit;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, uADStanIntf, uADStanOption, uADStanError,
+  uADGUIxIntf, uADPhysIntf, uADStanDef, uADStanPool, uADStanAsync,
+  uADPhysManager, uADStanParam, uADDatSManager, uADDAptIntf, uADDAptManager,
+  uADStanExprFuncs, uADGUIxFormsWait, uADCompGUIx, uADPhysSQLite, Data.DB,
+  uADCompDataSet, uADCompClient, vcl.ComCtrls, Dialogs, DateUtils;
+
+type
+  TDBModel = class(TDataModule)
+    ADConnection1: TADConnection;
+    ADQuerySQL: TADQuery;
+    ADPhysSQLiteDriverLink1: TADPhysSQLiteDriverLink;
+    ADGUIxWaitCursor1: TADGUIxWaitCursor;
+    ADQueryHist: TADQuery;
+    DataSourceHist: TDataSource;
+    ADQueryActualList: TADQuery;
+    DataSourceActualList: TDataSource;
+    ADQueryActualListid: TADAutoIncField;
+    ADQueryActualListdate_event_start: TDateField;
+    ADQueryActualListdate_event_end: TDateField;
+    ADQueryActualListdate_add: TDateField;
+    ADQueryActualListcaption: TStringField;
+    ADQueryActualListdescription: TMemoField;
+    ADQueryActualListlocal: TMemoField;
+    ADQueryActualListcontact: TStringField;
+    ADQueryActualListregistration: TStringField;
+    ADQueryActualListlink_to_site: TStringField;
+    ADQueryActualListlang: TStringField;
+    ADQueryActualListpublication: TStringField;
+    ADQueryActualListorganizator: TStringField;
+    ADQueryActualListstatus: TBooleanField;
+    ADQueryActualListtype_event_id: TStringField;
+    ADQueryReport: TADQuery;
+    ADQueryActualListtime_event_start: TStringField;
+    ADQueryActualListtime_event_end: TStringField;
+    procedure DataModuleCreate(Sender: TObject);
+  private
+    { Private declarations }
+
+  public
+    { Public declarations }
+    procedure Refresh;
+    procedure Save;
+    function GetCaptionEvent: string;
+
+    function GetCurrentConference: boolean;
+    function GetCurrentRoundTab: boolean;
+    function GetCurrentSeminar: boolean;
+    function GetNextConference: boolean;
+    function GetNextRoundTab: boolean;
+    function GetNextSeminar: boolean;
+    function GetFarConference: boolean;
+    function GetFarRoundTab: boolean;
+    function GetFarSeminar: boolean;
+
+    procedure CreateReport(st: TStringList);
+
+    procedure SortByDateStart;
+    procedure SortByDateEnd;
+    procedure SortByCaption;
+    procedure SortByType;
+    procedure SortByOrganiztion;
+  end;
+
+var
+  DBModel: TDBModel;
+
+implementation
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
+
+procedure TDBModel.DataModuleCreate(Sender: TObject);
+var
+  path: string;
+begin
+  GetDir(0, path);
+
+  ADPhysSQLiteDriverLink1.VendorHome := path;
+  ADPhysSQLiteDriverLink1.VendorLib := 'sqlite3.dll';
+
+  try
+  with ADConnection1 do
+  begin
+    Connected := false;
+    Params.Clear;
+    Params.Add('DriverID=SQLite');
+    Params.add('Database=' + path + '\article.db');
+    Connected := true;
+  end;
+
+  ADQueryActualList.Active := true;
+  ADQueryHist.Active := true;
+
+  except
+    ShowMessage('Не удалось подключиться к базе данных.');
+    exit;
+  end;
+end;
+
+
+function TDBModel.GetCaptionEvent: string;
+begin
+  result := ADQueryActualList.FieldByName('caption').AsString;
+end;
+
+procedure TDBModel.Refresh;
+begin
+  ADQueryActualList.Refresh;
+  ADQueryHist.Refresh;
+end;
+
+procedure TDBModel.Save;
+begin
+  if ADQueryActualList.Modified then
+    ADQueryActualList.post;
+end;
+
+function GetRigthDate(dt: TdateTime):string;
+var
+  y, m, d: word;
+begin
+  result:= '';
+
+  m := MonthOf(dt);              //раскладываем дату
+  y := yearof(dt);
+  d := Dayof(dt);
+  if m <10 then
+    result := IntToStr(y) + '-0' + IntToStr(m)
+  else
+    result := IntToStr(y) + '-' + IntToStr(m);
+
+  if d<10 then
+     result := result + '-0' + IntToStr(d)
+  else
+     result := result + '-' + IntToStr(d);
+
+end;
+
+//==========================
+//процедуры показывающие мероприятия этого месяца
+function TDBModel.GetCurrentConference:boolean;
+var
+  y, m, d: word;
+  dt: TDateTime;
+  str : string;
+  FinDate: string;
+begin
+
+  m := MonthOf(now);              //получаем текущий месяц
+  y := yearof(now);
+  dt := EndOfAMonth(y,m);         //получаем послуднюю дату текущего месяца
+
+  FinDate := GetRigthDate(dt);    //переводим в нужный формат
+
+  with ADQueryReport do
+  begin
+    close;
+    sql.Clear;
+
+    str := 'select * from article_tab '+
+     'WHERE ('+
+     '(date_event_start >= date(' + QuotedStr('now') + '))'+  //события которые должны начаться сейчас
+       ' OR (date_event_end >= date(' + QuotedStr('now') + '))'+    //или еще не закончились в этом периоде
+       ')' +
+     ' AND (date_event_start <= ' + QuotedSTR(FinDate)+ ')'+  //но не позднее указанного срока
+     ' AND status = 1 ' +                           //которые входят в рассылку
+     ' AND type_event_id = '+ QuotedStr('Конференция') + //и являются указанным типом
+     ' ORDER BY date_event_start'; //сортировать по типу, а потом по дате
+    sql.Add(str);
+    open;
+  end;
+  result := boolean(ADQueryReport.RecordCount);
+end;
+
+function TDBModel.GetCurrentRoundTab:boolean;
+var
+  y, m, d: word;
+  dt: TDateTime;
+  str : string;
+  FinDate: string;
+begin
+
+  m := MonthOf(now);              //получаем текущий месяц
+  y := yearof(now);
+  dt := EndOfAMonth(y,m);         //получаем послуднюю дату текущего месяца
+
+  FinDate := GetRigthDate(dt);    //переводим в нужный формат
+
+  with ADQueryReport do
+  begin
+    close;
+    sql.Clear;
+
+    str := 'select * from article_tab '+
+     'WHERE ('+
+     '(date_event_start >= date(' + QuotedStr('now') + '))'+  //события которые должны начаться сейчас
+       ' OR (date_event_end >= date(' + QuotedStr('now') + '))'+    //или еще не закончились в этом периоде
+       ')' +
+     ' AND (date_event_start <= ' + QuotedSTR(FinDate)+ ')'+  //но не позднее указанного срока
+     ' AND status = 1 ' +                           //которые входят в рассылку
+     ' AND type_event_id = '+ QuotedStr('Круглый стол') + //и являются указанным типом
+     ' ORDER BY date_event_start'; //сортировать по типу, а потом по дате
+    sql.Add(str);
+    open;
+  end;
+  result := boolean(ADQueryReport.RecordCount);
+end;
+
+function TDBModel.GetCurrentSeminar:boolean;
+var
+  y, m, d: word;
+  dt: TDateTime;
+  str : string;
+  FinDate: string;
+begin
+
+  m := MonthOf(now);              //получаем текущий месяц
+  y := yearof(now);
+  dt := EndOfAMonth(y,m);         //получаем послуднюю дату текущего месяца
+
+  FinDate := GetRigthDate(dt);    //переводим в нужный формат
+
+  with ADQueryReport do
+  begin
+    close;
+    sql.Clear;
+
+    str := 'select * from article_tab '+
+     'WHERE ('+
+     '(date_event_start >= date(' + QuotedStr('now') + '))'+  //события которые должны начаться сейчас
+       ' OR (date_event_end >= date(' + QuotedStr('now') + '))'+    //или еще не закончились в этом периоде
+       ')' +
+     ' AND (date_event_start <= ' + QuotedSTR(FinDate)+ ')'+  //но не позднее указанного срока
+     ' AND status = 1 ' +                           //которые входят в рассылку
+     ' AND type_event_id = '+ QuotedStr('Семинар') + //и являются указанным типом
+     ' ORDER BY date_event_start'; //сортировать по типу, а потом по дате
+    sql.Add(str);
+    open;
+  end;
+  result := boolean(ADQueryReport.RecordCount);
+end;
+
+
+//==========================
+//процедуры показывающие мероприятия следующего месяца
+function TDBModel.GetNextConference:boolean;
+var
+  y, m, d: word;
+  dt: TDateTime;
+  str : string;
+  StartDate, FinDate: string;
+begin
+
+  dt := incMonth(now);            //увеличиваем месяц на 1
+  m := MonthOf(dt);               //раскладываем
+  y := yearof(dt);
+
+  dt := StartOfAMonth(y,m);         //получаем первую дату следущего месяца
+  StartDate := GetRigthDate(dt);    //переводим в нужный формат
+
+  dt := EndOfAMonth(y,m);         //получаем последнюю дату следущего месяца
+  FinDate := GetRigthDate(dt);    //переводим в нужный формат
+
+  with ADQueryReport do
+  begin
+    close;
+    sql.Clear;
+
+    str := 'select * from article_tab '+
+     'WHERE ('+
+     '(date_event_start >= ' + QuotedStr(StartDate) + ')'+  //события которые должны начаться сейчас
+       ' OR (date_event_end >= ' + QuotedStr(StartDate) + ')'+    //или еще не закончились в этом периоде
+       ')' +
+     ' AND (date_event_start <= ' + QuotedStr(FinDate)+ ')'+  //но не позднее указанного срока
+     ' AND status = 1 ' +                           //которые входят в рассылку
+     ' AND type_event_id = '+ QuotedStr('Конференция') + //и являются указанным типом
+     ' ORDER BY date_event_start'; //сортировать по типу, а потом по дате
+    sql.Add(str);
+    open;
+  end;
+  result := boolean(ADQueryReport.RecordCount);
+end;
+
+function TDBModel.GetNextRoundTab:boolean;
+var
+  y, m, d: word;
+  dt: TDateTime;
+  str : string;
+  StartDate, FinDate: string;
+begin
+
+  dt := incMonth(now);            //увеличиваем месяц на 1
+  m := MonthOf(dt);               //раскладываем
+  y := yearof(dt);
+
+  dt := StartOfAMonth(y,m);         //получаем первую дату следущего месяца
+  StartDate := GetRigthDate(dt);    //переводим в нужный формат
+
+  dt := EndOfAMonth(y,m);         //получаем последнюю дату следущего месяца
+  FinDate := GetRigthDate(dt);    //переводим в нужный формат
+
+  with ADQueryReport do
+  begin
+    close;
+    sql.Clear;
+
+    str := 'select * from article_tab '+
+     'WHERE ('+
+     '(date_event_start >= ' + QuotedStr(StartDate) + ')'+  //события которые должны начаться сейчас
+       ' OR (date_event_end >= ' + QuotedStr(StartDate) + ')'+    //или еще не закончились в этом периоде
+       ')' +
+     ' AND (date_event_start <= ' + QuotedStr(FinDate)+ ')'+  //но не позднее указанного срока
+     ' AND status = 1 ' +                           //которые входят в рассылку
+     ' AND type_event_id = '+ QuotedStr('Круглый стол') + //и являются указанным типом
+     ' ORDER BY date_event_start'; //сортировать по типу, а потом по дате
+    sql.Add(str);
+    open;
+  end;
+  result := boolean(ADQueryReport.RecordCount);
+end;
+
+function TDBModel.GetNextSeminar:boolean;
+var
+  y, m, d: word;
+  dt: TDateTime;
+  str : string;
+  StartDate, FinDate: string;
+begin
+
+  dt := incMonth(now);            //увеличиваем месяц на 1
+  m := MonthOf(dt);               //раскладываем
+  y := yearof(dt);
+
+  dt := StartOfAMonth(y,m);         //получаем первую дату следущего месяца
+  StartDate := GetRigthDate(dt);    //переводим в нужный формат
+
+  dt := EndOfAMonth(y,m);         //получаем последнюю дату следущего месяца
+  FinDate := GetRigthDate(dt);    //переводим в нужный формат
+
+  with ADQueryReport do
+  begin
+    close;
+    sql.Clear;
+
+    str := 'select * from article_tab '+
+     'WHERE ('+
+     '(date_event_start >= ' + QuotedStr(StartDate) + ')'+  //события которые должны начаться сейчас
+       ' OR (date_event_end >= ' + QuotedStr(StartDate) + ')'+    //или еще не закончились в этом периоде
+       ')' +
+     ' AND (date_event_start <= ' + QuotedStr(FinDate)+ ')'+  //но не позднее указанного срока
+     ' AND status = 1 ' +                           //которые входят в рассылку
+     ' AND type_event_id = '+ QuotedStr('Семинар') + //и являются указанным типом
+     ' ORDER BY date_event_start'; //сортировать по типу, а потом по дате
+    sql.Add(str);
+    open;
+  end;
+  result := boolean(ADQueryReport.RecordCount);
+end;
+
+//=========================
+//вывод событий дальше двух месяцев
+function TDBModel.GetFarConference:boolean;
+var
+  y, m, d: word;
+  dt: TDateTime;
+  str : string;
+  StartDate: string;
+begin
+
+  dt := incMonth(now,2);            //увеличиваем месяц на 1
+  m := MonthOf(dt);               //раскладываем
+  y := yearof(dt);
+
+  dt := StartOfAMonth(y,m);         //получаем первую дату следущего месяца
+  StartDate := GetRigthDate(dt);    //переводим в нужный формат
+
+  with ADQueryReport do
+  begin
+    close;
+    sql.Clear;
+
+    str := 'select * from article_tab '+
+     'WHERE ('+
+     '(date_event_start >= ' + QuotedStr(StartDate) + ')'+  //события которые должны начаться сейчас
+       ' OR (date_event_end >= ' + QuotedStr(StartDate) + ')'+    //или еще не закончились в этом периоде
+       ')' +
+     ' AND status = 1 ' +                           //которые входят в рассылку
+     ' AND type_event_id = '+ QuotedStr('Конференция') + //и являются указанным типом
+     ' ORDER BY date_event_start'; //сортировать по типу, а потом по дате
+    sql.Add(str);
+    open;
+  end;
+  result := boolean(ADQueryReport.RecordCount);
+end;
+
+function TDBModel.GetFarRoundTab:boolean;
+var
+  y, m, d: word;
+  dt: TDateTime;
+  str : string;
+  StartDate: string;
+begin
+
+  dt := incMonth(now,2);            //увеличиваем месяц на 1
+  m := MonthOf(dt);               //раскладываем
+  y := yearof(dt);
+
+  dt := StartOfAMonth(y,m);         //получаем первую дату следущего месяца
+  StartDate := GetRigthDate(dt);    //переводим в нужный формат
+
+  with ADQueryReport do
+  begin
+    close;
+    sql.Clear;
+
+    str := 'select * from article_tab '+
+     'WHERE ('+
+     '(date_event_start >= ' + QuotedStr(StartDate) + ')'+  //события которые должны начаться сейчас
+       ' OR (date_event_end >= ' + QuotedStr(StartDate) + ')'+    //или еще не закончились в этом периоде
+       ')' +
+     ' AND status = 1 ' +                           //которые входят в рассылку
+     ' AND type_event_id = '+ QuotedStr('Круглый стол') + //и являются указанным типом
+     ' ORDER BY date_event_start'; //сортировать по типу, а потом по дате
+    sql.Add(str);
+    open;
+  end;
+  result := boolean(ADQueryReport.RecordCount);
+end;
+
+function TDBModel.GetFarSeminar:boolean;
+var
+  y, m, d: word;
+  dt: TDateTime;
+  str : string;
+  StartDate: string;
+begin
+
+  dt := incMonth(now,2);            //увеличиваем месяц на 1
+  m := MonthOf(dt);               //раскладываем
+  y := yearof(dt);
+
+  dt := StartOfAMonth(y,m);         //получаем первую дату следущего месяца
+  StartDate := GetRigthDate(dt);    //переводим в нужный формат
+
+  with ADQueryReport do
+  begin
+    close;
+    sql.Clear;
+
+    str := 'select * from article_tab '+
+     'WHERE ('+
+     '(date_event_start >= ' + QuotedStr(StartDate) + ')'+  //события которые должны начаться сейчас
+       ' OR (date_event_end >= ' + QuotedStr(StartDate) + ')'+    //или еще не закончились в этом периоде
+       ')' +
+     ' AND status = 1 ' +                           //которые входят в рассылку
+     ' AND type_event_id = '+ QuotedStr('Семинар') + //и являются указанным типом
+     ' ORDER BY date_event_start'; //сортировать по типу, а потом по дате
+    sql.Add(str);
+    open;
+  end;
+  result := boolean(ADQueryReport.RecordCount);
+end;
+
+
+//===========================
+//создание отчета
+
+procedure TDBModel.CreateReport(st: TStringList);
+var
+  str: string;
+begin
+
+  while not (ADQueryReport.Eof) do
+  begin
+    st.Add('<h2>'+DBModel.ADQueryReport.FieldByName('caption').AsString + '</h2>');
+
+    if DBModel.ADQueryReport.FieldByName('date_event_start').AsString =
+       DBModel.ADQueryReport.FieldByName('date_event_end').AsString
+       then
+        begin
+          str := '<p><strong>' + DBModel.ADQueryReport.FieldByName('date_event_start').AsString;
+          if DBModel.ADQueryReport.FieldByName('time_event_start').AsString <> '' then
+           str := str + ' c ' + DBModel.ADQueryReport.FieldByName('time_event_start').AsString;
+
+          if DBModel.ADQueryReport.FieldByName('time_event_end').AsString <> '' then
+           str := str + ' по ' + DBModel.ADQueryReport.FieldByName('time_event_end').AsString;
+
+          str := str + '</strong>';
+          st.Add(str);
+        end
+       else
+       begin
+        str := '<p><strong>' + DBModel.ADQueryReport.FieldByName('date_event_start').AsString + ' ' +
+            DBModel.ADQueryReport.FieldByName('time_event_start').AsString + ' - ' +
+            DBModel.ADQueryReport.FieldByName('date_event_end').AsString + ' ' +
+            DBModel.ADQueryReport.FieldByName('time_event_end').AsString +
+            '</strong>';
+
+        st.Add(str);
+       end;
+
+    st.Add(DBModel.ADQueryReport.FieldByName('description').AsString);
+    st.Add('</p>');
+
+    str := DBModel.ADQueryReport.FieldByName('lang').AsString;
+    if str <> '' then st.Add('<p><strong>Язык:</strong> ' + str + '</p>');
+
+    str := DBModel.ADQueryReport.FieldByName('local').AsString;
+    if str<>'' then st.Add('<p><strong>Место проведения:</strong> ' + str + '</p>');
+
+    str :=  DBModel.ADQueryReport.FieldByName('contact').AsString;
+    if str <> '' then st.Add('<p><strong>Контакты:</strong> ' + str + ' </p>');
+
+    str :=  DBModel.ADQueryReport.FieldByName('registration').AsString;
+    if str <> '' then st.Add('<p><strong>Регистрация:</strong> ' +str + '</p>');
+
+    str :=  DBModel.ADQueryReport.FieldByName('link_to_site').AsString;
+    if str <> '' then st.Add('<p><strong>Подробная информация:</strong> <a href=' + QuotedStr(str) + '>' + str + '</a></p>');
+
+    str :=  DBModel.ADQueryReport.FieldByName('publication').AsString;
+    if str <> '' then st.Add('<p><strong> Публикация: </strong> ' + str + '</p>');
+
+    str :=  DBModel.ADQueryReport.FieldByName('organizator').AsString;
+    if str <> '' then st.Add('<p><strong> Организатор: </strong>' + str + '</p>');
+    st.Add('<br>');
+
+    ADQueryReport.Next;
+  end;
+end;
+
+
+//сортировка
+
+procedure TDBModel.SortByCaption;
+begin
+  with ADQueryActualList do
+  begin
+    close;
+    sql.Clear;
+    sql.Add('select * from article_tab where (date_event_start >= date(' +
+      QuotedStr('now')+ ')) OR (date_event_end >= date(' + QuotedStr('now')+ ')) order by caption');
+    open;
+  end;
+end;
+
+procedure TDBModel.SortByDateEnd;
+begin
+  with ADQueryActualList do
+  begin
+    close;
+    sql.Clear;
+    sql.Add('select * from article_tab where (date_event_start >= date(' +
+      QuotedStr('now')+ ')) OR (date_event_end >= date(' + QuotedStr('now')+ ')) order by date_event_end');
+    open;
+  end;
+end;
+
+procedure TDBModel.SortByDateStart;
+begin
+  with ADQueryActualList do
+  begin
+    close;
+    sql.Clear;
+    sql.Add('select * from article_tab where (date_event_start >= date(' +
+      QuotedStr('now')+ ')) OR (date_event_end >= date(' + QuotedStr('now')+ ')) order by date_event_start');
+    open;
+  end;
+end;
+
+procedure TDBModel.SortByOrganiztion;
+begin
+  with ADQueryActualList do
+  begin
+    close;
+    sql.Clear;
+    sql.Add('select * from article_tab where (date_event_start >= date(' +
+      QuotedStr('now')+ ')) OR (date_event_end >= date(' + QuotedStr('now')+ ')) order by organizator');
+    open;
+  end;
+end;
+
+procedure TDBModel.SortByType;
+begin
+  with ADQueryActualList do
+  begin
+    close;
+    sql.Clear;
+    sql.Add('select * from article_tab where (date_event_start >= date(' +
+      QuotedStr('now')+ ')) OR (date_event_end >= date(' + QuotedStr('now')+ ')) order by type_event_id');
+    open;
+  end;
+end;
+
+
+end.

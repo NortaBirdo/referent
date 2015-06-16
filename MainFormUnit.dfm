@@ -54,6 +54,7 @@ object MainForm: TMainForm
     OnCellClick = DBGrid1CellClick
     OnDrawColumnCell = DBGrid1DrawColumnCell
     OnDblClick = DBGrid1DblClick
+    OnTitleClick = DBGrid1TitleClick
     Columns = <
       item
         Expanded = False
@@ -163,17 +164,8 @@ object MainForm: TMainForm
     Left = 808
     Top = 8
     object N1: TMenuItem
-      Caption = #1060#1072#1081#1083
-      object N2: TMenuItem
-        Caption = #1048#1084#1087#1086#1088#1090' '#1089#1086#1073#1099#1090#1080#1081
-      end
-      object N3: TMenuItem
-        Caption = '-'
-      end
-      object N4: TMenuItem
-        Caption = #1042#1099#1093#1086#1076
-        OnClick = N4Click
-      end
+      Caption = #1042#1099#1093#1086#1076
+      OnClick = N1Click
     end
     object N5: TMenuItem
       Caption = #1056#1077#1076#1072#1082#1090#1086#1088
@@ -205,7 +197,7 @@ object MainForm: TMainForm
   end
   object SaveDialog1: TSaveDialog
     Filter = '*.docx|MS Word 07-2010|*.doc|MS Word 97-2003'
-    Left = 512
+    Left = 520
     Top = 8
   end
 end

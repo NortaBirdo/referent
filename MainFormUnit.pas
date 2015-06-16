@@ -10,10 +10,6 @@ uses
 type
   TMainForm = class(TForm)
     MainMenu1: TMainMenu;
-    N1: TMenuItem;
-    N2: TMenuItem;
-    N3: TMenuItem;
-    N4: TMenuItem;
     N5: TMenuItem;
     N6: TMenuItem;
     N7: TMenuItem;
@@ -25,7 +21,8 @@ type
     DBGrid1: TDBGrid;
     N13: TMenuItem;
     SaveDialog1: TSaveDialog;
-    procedure N4Click(Sender: TObject);
+    N1: TMenuItem;
+
     procedure N10Click(Sender: TObject);
     procedure N6Click(Sender: TObject);
     procedure N7Click(Sender: TObject);
@@ -36,6 +33,8 @@ type
     procedure DBGrid1CellClick(Column: TColumn);
     procedure N13Click(Sender: TObject);
     procedure N9Click(Sender: TObject);
+    procedure N1Click(Sender: TObject);
+    procedure DBGrid1TitleClick(Column: TColumn);
 
   private
     { Private declarations }
@@ -83,6 +82,23 @@ begin
   end;
 end;
 
+
+//сортировка при клике по названию столбца
+procedure TMainForm.DBGrid1TitleClick(Column: TColumn);
+begin
+  if Column.Title.Caption = 'Название' then
+    DBModel.SortByCaption;
+  if Column.Title.Caption = 'Дата начала' then
+    DBModel.SortByDateStart;
+  if Column.Title.Caption = 'Дата окончания' then
+    DBModel.SortByDateEnd;
+  if Column.Title.Caption = 'Тип' then
+    DBModel.SortByType;
+  if Column.Title.Caption = 'Организатор' then
+    DBModel.SortByOrganiztion;
+
+end;
+
 //===========================================================
 
 procedure TMainForm.DBGrid1DblClick(Sender: TObject);
@@ -101,7 +117,7 @@ begin
   HistForm.ShowModal;
 end;
 
-procedure TMainForm.N4Click(Sender: TObject);
+procedure TMainForm.N1Click(Sender: TObject);
 begin
   MainForm.Close;
 end;
@@ -130,139 +146,86 @@ end;
 
 //Экспорт событий
 procedure TMainForm.N9Click(Sender: TObject);
-const
-  wdAlignParagraphCenter = 1;
-  wdAlignParagraphLeft = 0;
-  wdAlignParagraphRight = 2;
-  wdLineStyleSingle = 1;
 var
-  wdApp, wdDoc, wdRng, wdTable : Variant;
-  i, j, Res : Integer;
-  D : TDateTime;
-  Bm : TBookMark;
-
+  Outline: TStringList;
 begin
 
-  try
-    wdApp := CreateOleObject('Word.Application');
-  except
-    MessageBox(0, 'Не удалось запустить MS Word. Действие отменено.'
-      ,'Внимание!', MB_OK + MB_ICONERROR + MB_APPLMODAL);
-    Exit;
-  end;
-
-  wdApp.Visible := false;
-  wdDoc := wdApp.Documents.Add;
+  outLine := TStringList.Create;
 
   try
-    wdRng := wdDoc.Content; //Диапазон, охватывающий всё содержимое документа.
-
-    //Параграф 1. Заголовок отчёта.
-
-    wdRng.InsertAfter('Ближайшие мероприятия'#13#10);
-    wdRng.ParagraphFormat.Alignment := wdAlignParagraphLeft;
-    wdRng.Font.Name := 'Calibri Light (Заголовки)';
-    wdRng.Font.Color := rgb(79, 129, 189);
- //   wdRng.Font.Bold := True;
-    wdRng.Font.Size := 16;
-
-   { //Параграф 2. Общие сведения.
-
-    //Формируем диапазон нового параграфа непосредственно за текущим диапазоном.
-    wdRng.Start := wdRng.End;
-    wdRng.InsertAfter(#13#10);
-    D := Now;
-    wdRng.InsertAfter('Дата: ' + FormatDateTime('dd.mm.yyyy', D) + #13#10);
-    wdRng.InsertAfter('Время: ' + FormatDateTime('hh:nn:ss:zzz', D) + #13#10);
-    //Сброс параметров параграфа.
-    wdRng.ParagraphFormat.Reset;
-    //Выравнивание по левому краю.
-    wdRng.ParagraphFormat.Alignment := wdAlignParagraphLeft;
-    //Отступ слева на 2 сантиметра. Размер отступа задаётся в типографских
-    //единицах - в пунктах. 1 пункт = 0.035 сантиметра.
-    //При записи в поле LeftIndent, отступ отсчитывается от левого поля на странице.
-    //wdRng.ParagraphFormat.LeftIndent := 2 / 0.035;
-    //Параметры шрифта.
-    wdRng.Font.Reset; //Сброс параметров шрифта.
-    wdRng.Font.Size := 12;
-    wdRng.Font.Bold := True;
-
-    //Параграф 3. Заголовок таблицы.
-
-    wdRng.Start := wdRng.End;
-    wdRng.InsertAfter(#13#10);
-    wdRng.InsertAfter('Таблица 1. Размер и население стран.'#13#10);
-    wdRng.ParagraphFormat.Reset;
-    wdRng.Font.Reset;
-    wdRng.Font.Size := 12;
-    wdRng.Font.Bold := False;
-
-    //Параграф 4. Таблица.
-
-    if not Query1.Active then Query1.Open;
-
-    wdRng.Start := wdRng.End;
-    //Добавляем таблицу MS Word. Пока создаём таблицу с двумя строками.
-    wdTable := wdDoc.Tables.Add(wdRng.Characters.Last, 2, Query1.Fields.Count);
-    //Параметры линий таблицы.
-    wdTable.Borders.InsideLineStyle := wdLineStyleSingle;
-    wdTable.Borders.OutsideLineStyle := wdLineStyleSingle;
-    //Сброс параметров параграфа.
-    wdRng.ParagraphFormat.Reset;
-    //Выравнивание всей таблицы - по левому краю.
-    wdRng.ParagraphFormat.Alignment := wdAlignParagraphLeft;
-    //Оформление шапки.
-    wdRng := wdTable.Rows.Item(1).Range; //Диапазон первой строки.
-    wdRng.ParagraphFormat.Alignment := wdAlignParagraphCenter;
-    wdRng.Font.Size := 10;
-    wdRng.Font.Bold := True;
-    //Оформление первой строки данных - это вторая строка в таблице.
-    //При добавлении следующих строк, их оформление будет копироваться с этой строки.
-    wdRng := wdTable.Rows.Item(2).Range; //Диапазон второй строки.
-    wdRng.ParagraphFormat.Alignment := wdAlignParagraphLeft;
-    wdRng.Font.Size := 10;
-    wdRng.Font.Bold := False;
-
-    //Записываем шапку таблицы.
-    for i := 0 to Query1.Fields.Count - 1 do
-      wdTable.Cell(1, i + 1).Range.Text := Query1.Fields[i].DisplayName;
-    //Записываем данные таблицы.
-    Query1.DisableControls;
-    Bm := Query1.GetBookMark;
-    Query1.First;
-    i := 1; //Текущая строка в таблице MS Word.
-    while not Query1.Eof do begin
-      Inc(i);
-      //Если требуется, добавляем новую строку в конец таблицы.
-      if i > 2 then wdTable.Rows.Add;
-      //Записываем данные в строку таблицы MS Word.
-      for j := 0 to Query1.Fields.Count - 1 do
-        wdTable.Cell(i, j + 1).Range.Text := Query1.Fields[j].AsString;
-      Query1.Next;
+    //экпорт конференций этот месяц
+    outLine.Add('<h1>Ближайшие мероприятия</h1>');
+    if DBmodel.GetCurrentConference then
+    begin
+      outLine.Add('<h1>Конференции</h1>');
+      DBModel.CreateReport(OutLine);
     end;
-    Query1.GotoBookMark(Bm);
-    Query1.EnableControls;
 
-  finally
-    //Включение перерисовки окна MS Word. В случае, если wdApp.Visible := True.
-    wdApp.ScreenUpdating := True;
+    //экпорт круглых столов этот месяц
+    if DBmodel.GetCurrentRoundTab then
+    begin
+      outLine.Add('<h1>Круглые столы</h1>');
+      DBModel.CreateReport(OutLine);
+    end;
+
+    //экпорт семинаров этот месяц
+    if DBmodel.GetCurrentSeminar then
+    begin
+      outLine.Add('<h1>Семинары</h1>');
+      DBModel.CreateReport(OutLine);
+    end;
+
+    //экпорт конференций следующий месяц
+    outLine.Add('<h1>Мероприятия в следующем месяце</h1>');
+    if DBmodel.GetNextConference then
+    begin
+      outLine.Add('<h1>Конференции</h1>');
+      DBModel.CreateReport(OutLine);
+    end;
+
+    //экпорт круглых столов следующий месяц
+    if DBmodel.GetNextRoundTab then
+    begin
+      outLine.Add('<h1>Круглые столы</h1>');
+      DBModel.CreateReport(OutLine);
+    end;
+
+    //экпорт семинаров следующий месяц
+    if DBmodel.GetNextSeminar then
+    begin
+      outLine.Add('<h1>Семинары</h1>');
+      DBModel.CreateReport(OutLine);
+    end;
+
+    //экпорт конференций отдаленное
+    outLine.Add('<h1>Будущие мероприятия</h1>');
+    if DBmodel.GetFarConference then
+    begin
+      outLine.Add('<h1>Конференции</h1>');
+      DBModel.CreateReport(OutLine);
+    end;
+
+    //экпорт круглых столов отдаленное
+    if DBmodel.GetFarRoundTab then
+    begin
+      outLine.Add('<h1>Круглые столы</h1>');
+      DBModel.CreateReport(OutLine);
+    end;
+
+    //экпорт семинаров отдаленное
+    if DBmodel.GetFarSeminar then
+    begin
+      outLine.Add('<h1>Семинары</h1>');
+      DBModel.CreateReport(OutLine);
+    end;
+
+    outLine.SaveToFile('Report ' + DateToStr(now) + '.html', TEncoding.Unicode);
+  except
+    ShowMessage('Ошибка экспорта значений');
+    exit;
   end;
 
-  wdApp.DisplayAlerts := False; //Отключаем режим показа предупреждений.
-  try
-    wdDoc.SaveAs(FileName:=Sd.FileName); //Запись документа в файл.
-  finally
-    wdApp.DisplayAlerts := True; //Включаем режим показа предупреждений.
-  end;
-
-    }
-
-  wdApp.Visible := True;
-  wdApp.Activate;
-  finally
-
-  end;
-
+  ShowMessage('Файл сохранен в каталоге с программой.');
 end;
 
 end.

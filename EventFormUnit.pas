@@ -32,12 +32,16 @@ type
     DBEdit9: TDBEdit;
     DBEdit11: TDBEdit;
     DBEdit12: TDBEdit;
-    DBRichEdit1: TDBRichEdit;
-    DBRichEdit2: TDBRichEdit;
     OkBtn: TButton;
     CancelBtn: TButton;
     Label13: TLabel;
     DBComboBox1: TDBComboBox;
+    DBMemo1: TDBMemo;
+    DBMemo2: TDBMemo;
+    Label14: TLabel;
+    DBEdit1: TDBEdit;
+    Label15: TLabel;
+    DBEdit5: TDBEdit;
     procedure CancelBtnClick(Sender: TObject);
     procedure OkBtnClick(Sender: TObject);
   private
@@ -64,7 +68,13 @@ end;
 procedure TEventEditForm.OkBtnClick(Sender: TObject);
 begin
   if DBModel.ADQueryActualList.Modified then
+  begin
+    if DBModel.ADQueryActualList.FieldByName('date_event_end').AsString = '' then
+      DBModel.ADQueryActualList.FieldByName('date_event_end').Value := DBEdit3.Text;
+
     DBModel.ADQueryActualList.post;
+
+  end;
 
   EventEditForm.Close;
 end;

@@ -107,6 +107,20 @@ object EventEditForm: TEventEditForm
     Height = 13
     Caption = #1058#1080#1087' '#1084#1077#1088#1086#1087#1088#1080#1103#1090#1080#1103
   end
+  object Label14: TLabel
+    Left = 575
+    Top = 16
+    Width = 69
+    Height = 13
+    Caption = #1042#1088#1077#1084#1103' '#1085#1072#1095#1072#1083#1072
+  end
+  object Label15: TLabel
+    Left = 577
+    Top = 43
+    Width = 63
+    Height = 13
+    Caption = #1042#1088#1077#1084#1103' '#1082#1086#1085#1094#1072
+  end
   object DBCheckBox1: TDBCheckBox
     Left = 8
     Top = 42
@@ -124,24 +138,27 @@ object EventEditForm: TEventEditForm
     Height = 21
     DataField = 'date_add'
     DataSource = DBModel.DataSourceActualList
+    MaxLength = 10
     TabOrder = 1
   end
   object DBEdit2: TDBEdit
-    Left = 560
+    Left = 495
     Top = 40
-    Width = 121
+    Width = 74
     Height = 21
     DataField = 'date_event_end'
     DataSource = DBModel.DataSourceActualList
+    MaxLength = 10
     TabOrder = 2
   end
   object DBEdit3: TDBEdit
-    Left = 560
+    Left = 495
     Top = 13
-    Width = 121
+    Width = 70
     Height = 21
     DataField = 'date_event_start'
     DataSource = DBModel.DataSourceActualList
+    MaxLength = 10
     TabOrder = 3
   end
   object DBEdit4: TDBEdit
@@ -207,41 +224,13 @@ object EventEditForm: TEventEditForm
     DataSource = DBModel.DataSourceActualList
     TabOrder = 10
   end
-  object DBRichEdit1: TDBRichEdit
-    Left = 208
-    Top = 158
-    Width = 473
-    Height = 221
-    DataField = 'description'
-    DataSource = DBModel.DataSourceActualList
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    TabOrder = 11
-  end
-  object DBRichEdit2: TDBRichEdit
-    Left = 208
-    Top = 385
-    Width = 473
-    Height = 62
-    DataField = 'local'
-    DataSource = DBModel.DataSourceActualList
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    TabOrder = 12
-  end
   object OkBtn: TButton
     Left = 8
     Top = 600
     Width = 117
     Height = 25
     Caption = 'OK'
-    TabOrder = 13
+    TabOrder = 11
     OnClick = OkBtnClick
   end
   object CancelBtn: TButton
@@ -250,7 +239,7 @@ object EventEditForm: TEventEditForm
     Width = 121
     Height = 25
     Caption = #1054#1090#1084#1077#1085#1072
-    TabOrder = 14
+    TabOrder = 12
     OnClick = CancelBtnClick
   end
   object DBComboBox1: TDBComboBox
@@ -264,6 +253,44 @@ object EventEditForm: TEventEditForm
       #1057#1077#1084#1080#1085#1072#1088
       #1050#1086#1085#1092#1077#1088#1077#1085#1094#1080#1103
       #1050#1088#1091#1075#1083#1099#1081' '#1089#1090#1086#1083)
+    TabOrder = 13
+  end
+  object DBMemo1: TDBMemo
+    Left = 208
+    Top = 158
+    Width = 473
+    Height = 226
+    DataField = 'description'
+    DataSource = DBModel.DataSourceActualList
+    TabOrder = 14
+  end
+  object DBMemo2: TDBMemo
+    Left = 208
+    Top = 390
+    Width = 473
+    Height = 57
+    DataField = 'local'
+    DataSource = DBModel.DataSourceActualList
     TabOrder = 15
+  end
+  object DBEdit1: TDBEdit
+    Left = 650
+    Top = 13
+    Width = 34
+    Height = 21
+    DataField = 'time_event_start'
+    DataSource = DBModel.DataSourceActualList
+    MaxLength = 5
+    TabOrder = 16
+  end
+  object DBEdit5: TDBEdit
+    Left = 650
+    Top = 40
+    Width = 34
+    Height = 21
+    DataField = 'time_event_end'
+    DataSource = DBModel.DataSourceActualList
+    MaxLength = 5
+    TabOrder = 17
   end
 end

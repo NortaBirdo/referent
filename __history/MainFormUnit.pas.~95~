@@ -1,0 +1,197 @@
+unit MainFormUnit;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.Grids, Vcl.DBGrids,
+  Vcl.StdCtrls, Vcl.DBCtrls, Data.DB, ComObj;
+
+type
+  TMainForm = class(TForm)
+    MainMenu1: TMainMenu;
+    N5: TMenuItem;
+    N6: TMenuItem;
+    N7: TMenuItem;
+    N8: TMenuItem;
+    N9: TMenuItem;
+    N10: TMenuItem;
+    Label1: TLabel;
+    DBCheckBox1: TDBCheckBox;
+    DBGrid1: TDBGrid;
+    N13: TMenuItem;
+    SaveDialog1: TSaveDialog;
+    N1: TMenuItem;
+
+    procedure N10Click(Sender: TObject);
+    procedure N6Click(Sender: TObject);
+    procedure N7Click(Sender: TObject);
+    procedure N8Click(Sender: TObject);
+    procedure DBGrid1DblClick(Sender: TObject);
+    procedure DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure DBGrid1CellClick(Column: TColumn);
+    procedure N13Click(Sender: TObject);
+    procedure N9Click(Sender: TObject);
+    procedure N1Click(Sender: TObject);
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  MainForm: TMainForm;
+
+implementation
+
+{$R *.dfm}
+
+uses DBModelUnit, EventFormUnit, HistFormUnit;
+
+procedure TMainForm.DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect;
+  DataCol: Integer; Column: TColumn; State: TGridDrawState);
+
+const
+  CtrlState: array[Boolean] of integer =
+        (DFCS_BUTTONCHECK, DFCS_BUTTONCHECK or DFCS_CHECKED) ;
+begin
+  if (Column.Field.DataType=ftBoolean) then
+  begin
+    DBGrid1.Canvas.FillRect(Rect) ;
+    if VarIsNull(Column.Field.Value) then
+      DrawFrameControl(DBGrid1.Canvas.Handle,Rect,
+             DFC_BUTTON, DFCS_BUTTONCHECK or DFCS_INACTIVE)
+    else
+      DrawFrameControl(DBGrid1.Canvas.Handle,Rect, DFC_BUTTON,
+             CtrlState[Column.Field.AsBoolean]) ;
+  end;
+
+end;
+
+procedure TMainForm.DBGrid1CellClick(Column: TColumn);
+begin
+    if (Column.Field.DataType=ftBoolean) then
+  begin
+    Column.Grid.DataSource.DataSet.Edit;
+    Column.Field.Value:= not Column.Field.AsBoolean;
+    Column.Grid.DataSource.DataSet.Post;
+
+  end;
+end;
+
+//===========================================================
+
+procedure TMainForm.DBGrid1DblClick(Sender: TObject);
+begin
+  EventEditForm.ShowModal;
+  DBModel.Refresh;
+end;
+
+procedure TMainForm.N10Click(Sender: TObject);
+begin
+  ShowMessage('Разработчик: Соколовский Николай. E-mail: sokolovskynik@gmail.com; сайт: samodelkin.biz. 2014');
+end;
+
+procedure TMainForm.N13Click(Sender: TObject);
+begin
+  HistForm.ShowModal;
+end;
+
+procedure TMainForm.N1Click(Sender: TObject);
+begin
+  MainForm.Close;
+end;
+
+//добавить событие
+procedure TMainForm.N6Click(Sender: TObject);
+begin
+  DBModel.ADQueryActualList.Insert;
+  EventEditForm.AddDateEdit.Text := DateToStr(Date);
+  EventEditForm.ShowModal;
+  DBModel.Refresh;
+end;
+
+//редактировать событие
+procedure TMainForm.N7Click(Sender: TObject);
+begin
+  EventEditForm.ShowModal;
+  DBModel.Refresh;
+end;
+
+procedure TMainForm.N8Click(Sender: TObject);
+begin
+  if MessageDlg('Вы действительно хотите удалить событие: "' + DBModel.GetCaptionEvent+ '"?', mtConfirmation, mbYesNo, 0) = idYes then
+    DBmodel.ADQueryActualList.Delete;
+end;
+
+//Экспорт событий
+procedure TMainForm.N9Click(Sender: TObject);
+var
+  Outline: TStringList;
+begin
+
+  outLine := TStringList.Create;
+
+  try
+    //экпорт конференций этот месяц
+    outLine.Add('<h1>Мероприятия этого месяца</h1>');
+    if DBmodel.GetCurrentConference then
+    begin
+      outLine.Add('<h1>Конференции</h1>');
+      DBModel.CreateReport(OutLine);
+    end;
+
+    //экпорт круглых столов этот месяц
+    DBmodel.GetCurrentRoundTab;
+    outLine.Add('<h1>Круглые столы</h1>');
+    DBModel.CreateReport(OutLine);
+
+    //экпорт семинаров этот месяц
+    DBmodel.GetCurrentSeminar;
+    outLine.Add('<h1>Семинары</h1>');
+    DBModel.CreateReport(OutLine);
+
+    //экпорт конференций следующий месяц
+    outLine.Add('<h1>Мероприятия следующего месяца</h1>');
+    DBmodel.GetNextConference;
+    outLine.Add('<h1>Конференции</h1>');
+    DBModel.CreateReport(OutLine);
+
+    //экпорт круглых столов следующий месяц
+    DBmodel.GetNextRoundTab;
+    outLine.Add('<h1>Круглые столы</h1>');
+    DBModel.CreateReport(OutLine);
+
+    //экпорт семинаров следующий месяц
+    DBmodel.GetNextSeminar;
+    outLine.Add('<h1>Семинары</h1>');
+    DBModel.CreateReport(OutLine);
+
+    //экпорт конференций отдаленное
+    outLine.Add('<h1>Будущие мероприятия</h1>');
+    DBmodel.GetFarConference;
+    outLine.Add('<h1>Конференции</h1>');
+    DBModel.CreateReport(OutLine);
+
+    //экпорт круглых столов отдаленное
+    DBmodel.GetFarRoundTab;
+    outLine.Add('<h1>Круглые столы</h1>');
+    DBModel.CreateReport(OutLine);
+
+    //экпорт семинаров отдаленное
+    DBmodel.GetFarSeminar;
+    outLine.Add('<h1>Семинары</h1>');
+    DBModel.CreateReport(OutLine);
+
+    outLine.SaveToFile('Report ' + DateToStr(now) + '.html', TEncoding.Unicode);
+  except
+    ShowMessage('Ошибка экспорта значений');
+    exit;
+  end;
+
+  ShowMessage('Файл сохранен в каталоге с программой.');
+end;
+
+end.

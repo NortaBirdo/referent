@@ -31,7 +31,9 @@ object DBModel: TDBModel
     Connection = ADConnection1
     SQL.Strings = (
       'select * from article_tab'
-      'where date_event_end < date('#39'now'#39')')
+      
+        'where (date_event_start < date('#39'now'#39')) AND (date_event_end < dat' +
+        'e('#39'now'#39'))')
     Left = 48
     Top = 200
   end
@@ -44,11 +46,15 @@ object DBModel: TDBModel
     Connection = ADConnection1
     SQL.Strings = (
       'select * from article_tab'
-      'where date_event_start >= date('#39'now'#39')')
+      
+        'where (date_event_start >= date('#39'now'#39')) OR (date_event_end >= da' +
+        'te('#39'now'#39'))'
+      'order by date_event_start')
     Left = 48
     Top = 128
     object ADQueryActualListid: TADAutoIncField
       FieldName = 'id'
+      ReadOnly = True
     end
     object ADQueryActualListdate_event_start: TDateField
       FieldName = 'date_event_start'
@@ -105,10 +111,27 @@ object DBModel: TDBModel
       FieldName = 'type_event_id'
       Size = 50
     end
+    object ADQueryActualListtime_event_start: TStringField
+      FieldName = 'time_event_start'
+      Origin = 'time_event_start'
+      EditMask = '!90:00;1;_'
+      Size = 5
+    end
+    object ADQueryActualListtime_event_end: TStringField
+      FieldName = 'time_event_end'
+      Origin = 'time_event_end'
+      EditMask = '!90:00;1;_'
+      Size = 5
+    end
   end
   object DataSourceActualList: TDataSource
     DataSet = ADQueryActualList
     Left = 168
     Top = 128
+  end
+  object ADQueryReport: TADQuery
+    Connection = ADConnection1
+    Left = 48
+    Top = 264
   end
 end
